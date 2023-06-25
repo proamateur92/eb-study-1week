@@ -1,22 +1,76 @@
-<%@ page import="com.study.connection.ConnectionTest" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.study.connection.ConnectionTest" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>JSP - Hello World</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>list</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body>
-<h1><%= "Hello World!" %>
-</h1>
-<br/>
-<a href="hello-servlet">Hello Servlet</a>
-
 
 <%
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
 
-    ConnectionTest t = new ConnectionTest();
-    out.println(t.getConnection());
+    try {
+        conn = ConnectionTest.getConnection();
+        String sql = "select c.name as category, b.* from board b inner join category c on b.category_id = c.id order by b.create_date desc, b.id desc";
+        pstmt = conn.prepareStatement(sql);
+        rs = pstmt.executeQuery();
+%>
+<body>
+<div>검색 영역</div>
+<div>
+    <div>총 <%= rs.getInt("rowCount")%>건</div>
+    <table>
+        <thead>
+        <tr>
+            <th>카테고리</th>
+            <th>파일</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>조회수</th>
+            <th>등록 일시</th>
+            <th>수정 일시</th>
+        </tr>
+        </thead>
+        <tbody>
+<%
+        while(rs.next()) {
+          String updateDate = rs.getString("update_date");
+          updateDate = updateDate == null ? "-" : updateDate.substring(0, 16).replace("-", ".");
 
+          String startDate = rs.getString("create_date").substring(0, 16).replace("-", ".");
+
+          out.print("<tr>");
+          out.print("<td>" +rs.getString("category") + "</td>");
+          out.print("<td>" +rs.getString("isFile") + "</td>");
+          out.print("<td>" +rs.getString("content") + "</td>");
+          out.print("<td>" +rs.getString("title") + "</td>");
+          out.print("<td>" +rs.getInt("view_count") + "</td>");
+          out.print("<td>" + startDate + "</td>");
+          out.print("<td>" + updateDate + "</td>");
+          out.print("</tr>");
+    }
+%>
+        </tbody>
+    </table>
+</div>
+<div>페이징 영역</div>
+<button onclick="location.href='write.jsp'">등록</button>
+<%
+    } catch (Exception e) {
+        System.out.println("read boardList = " + e.toString());
+    } finally {
+        rs.close();
+        pstmt.close();
+        conn.close();
+    }
 %>
 
 </body>
