@@ -3,6 +3,10 @@ td {
     border: 1px solid #333;
 }
 
+td:not(td:nth-of-type(4)) {
+    text-align: center;
+}
+
 thead,
 tfoot {
     background-color: #333;

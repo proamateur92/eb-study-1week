@@ -13,6 +13,29 @@
 </head>
 
 <%
+    Connection conn1 = null;
+    PreparedStatement pstmt1 = null;
+    ResultSet rs1 = null;
+
+    Integer rowCount = null;
+
+    try {
+        conn1 = ConnectionTest.getConnection();
+        String sql1 = "select count(*) as rowCount from board";
+        pstmt1 = conn1.prepareStatement(sql1);
+        rs1 = pstmt1.executeQuery();
+
+        while(rs1.next()) {
+            rowCount = rs1.getInt("rowCount");
+        }
+    } catch (Exception e) {
+        System.out.println("read count boardList = " + e.toString());
+    } finally {
+        rs1.close();
+        pstmt1.close();
+        conn1.close();
+    }
+
     Connection conn = null;
     PreparedStatement pstmt = null;
     ResultSet rs = null;
@@ -26,7 +49,7 @@
 <body>
 <div>검색 영역</div>
 <div>
-    <div>총 <%= rs.getInt("rowCount")%>건</div>
+    <div>총 <%= rowCount%>건</div>
     <table>
         <thead>
         <tr>
