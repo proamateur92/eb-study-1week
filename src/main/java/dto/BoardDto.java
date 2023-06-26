@@ -1,6 +1,6 @@
 package dto;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class BoardDto {
     private Integer id;
@@ -10,8 +10,24 @@ public class BoardDto {
     private String author;
     private String password;
     private Integer view_count;
-    private Date create_date;
-    private Date update_date;
+    private String file_flag;
+    private Timestamp create_date;
+    private Timestamp update_date;
+
+    public BoardDto() {};
+
+    public BoardDto(Integer id, Integer category_id, String content, String title, String author, String password, Integer view_count, String file_flag, Timestamp create_date, Timestamp update_date) {
+        this.id = id;
+        this.category_id = category_id;
+        this.content = content;
+        this.title = title;
+        this.author = author;
+        this.password = password;
+        this.view_count = view_count;
+        this.file_flag = file_flag;
+        this.create_date = create_date;
+        this.update_date = update_date;
+    }
 
     public Integer getId() {
         return id;
@@ -69,20 +85,28 @@ public class BoardDto {
         this.view_count = view_count;
     }
 
-    public Date getCreate_date() {
+    public Timestamp getCreate_date() {
         return create_date;
     }
 
-    public void setCreate_date(Date create_date) {
+    public void setCreate_date(Timestamp create_date) {
         this.create_date = create_date;
     }
 
-    public Date getUpdate_date() {
+    public Timestamp getUpdate_date() {
         return update_date;
     }
 
-    public void setUpdate_date(Date update_date) {
+    public void setUpdate_date(Timestamp update_date) {
         this.update_date = update_date;
+    }
+
+    public String getFile_flag() {
+        return file_flag;
+    }
+
+    public void setFile_flag(String file_flag) {
+        this.file_flag = file_flag;
     }
 
     @Override
@@ -95,6 +119,7 @@ public class BoardDto {
                 ", author='" + author + '\'' +
                 ", password='" + password + '\'' +
                 ", view_count=" + view_count +
+                ", file_flag='" + file_flag + '\'' +
                 ", create_date=" + create_date +
                 ", update_date=" + update_date +
                 '}';
