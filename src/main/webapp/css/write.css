@@ -1,0 +1,17 @@
+.row {
+    display: flex;
+}
+
+.row > .title {
+    width: 8rem;
+    border: 1px solid black;
+}
+
+.file-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.point {
+    color: red;
+}

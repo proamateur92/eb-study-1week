@@ -1,75 +1,43 @@
-<%@ page import="com.study.connection.ConnectionTest" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.Connection" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dao.BoardDao" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.LinkedHashMap" %>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Document</title>
-    <style>
-        .row {
-            display: flex;
-        }
-
-        .title {
-            width: 8rem;
-            border: 1px solid black;
-        }
-
-        .file-wrap {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .point {
-            color: red;
-        }
-    </style>
+    <script src="./js/write.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="./css/write.css" />
+    <title>게시글 작성</title>
 </head>
-
 <body>
 <div>
     <h1>게시판 - 등록</h1>
 </div>
-<form action="writeProc.jsp">
+<%
+    BoardDao boardDao = new BoardDao();
+    LinkedHashMap<Integer, String> categoryMap = boardDao.getCategoryList();
+%>
+<form name="form" method="post">
     <div class="row">
         <div class="title">카테고리<span class="point">*</span></div>
         <div>
             <select name="category">
                 <option value="0">카테고리 선택</option>
                 <%
-                    Connection conn = null;
-                    PreparedStatement pstmt = null;
-                    ResultSet rs = null;
-
-                    try {
-                        conn = ConnectionTest.getConnection();
-                        String sql = "select * from category order by id";
-                        pstmt = conn.prepareStatement(sql);
-                        rs = pstmt.executeQuery();
-
-                        while (rs.next()) {
+                    for(Map.Entry<Integer, String> entry : categoryMap.entrySet()) {
                 %>
-                <option value="<%= rs.getInt("id")%>"><%= rs.getString("name")%></option>
+                    <option value="<%= entry.getKey()%>"><%= entry.getValue()%></option>
                 <%
-                        }
-                    } catch (Exception e) {
-                        System.out.println("read count boardList = " + e.toString());
-                    } finally {
-                        rs.close();
-                        pstmt.close();
-                        conn.close();
                     }
                 %>
             </select>
         </div>
     </div>
     <div class="row">
-        <div class="title" name="author">작성자<span class="point">*</span></div>
+        <div class="title">작성자<span class="point">*</span></div>
         <div>
             <input type="text" name="author">
         </div>
@@ -78,7 +46,7 @@
         <div class="title">비밀번호<span class="point">*</span></div>
         <div>
             <input type="text" name="password" placeholder="비밀번호">
-            <input type="text" placeholder="비밀번호 확인">
+            <input type="text" name="passwordCheck" placeholder="비밀번호 확인">
         </div>
     </div>
     <div class="row">
@@ -110,17 +78,10 @@
             </div>
         </div>
     </div>
-    <div>
-        <button id="cancel-btn">취소</button>
-        <button type="submit">저장</button>
-    </div>
 </form>
+<div>
+    <button onclick="location.href='index.jsp'">취소</button>
+    <button onclick="insertBoard()">저장</button>
+</div>
 </body>
-<script>
-    const cancletBtn = document.querySelector('#cancel-btn');
-    cancletBtn.addEventListener('click', () => {
-        //     예외처리
-        window.history.back();
-    })
-</script>
 </html>
