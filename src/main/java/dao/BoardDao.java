@@ -128,13 +128,37 @@ public class BoardDao {
 
         return null;
     };
-
+    
     // 게시글 수정
-    public int updateBoard(BoardDto boardDto) {
-        return 0;
+    public int updateBoard(BoardDto boardDto) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        System.out.println("UPDATE BOARD DAO");
+
+        try {
+            conn = ConnectionTest.getConnection();
+            String sql = "update board set category_id = ?, author = ?, title = ?, content = ?, update_date = now() where id = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, boardDto.getCategory_id());
+            pstmt.setString(2, boardDto.getAuthor());
+            pstmt.setString(3, boardDto.getTitle());
+            pstmt.setString(4, boardDto.getContent());
+            pstmt.setInt(5, boardDto.getId());
+
+            return pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("update Board() = " + e.toString());
+
+        } finally {
+            pstmt.close();
+            conn.close();
+        }
+
+        return -1;
     };
-    
-    
+
     // 게시글 삭제
     public int deleteBoard(Map<String, String> map) throws SQLException {
         Connection conn = null;
@@ -173,8 +197,8 @@ public class BoardDao {
 
         try {
             conn = ConnectionTest.getConnection();
-            String sql1 = "select count(*) as rowCount from board";
-            pstmt = conn.prepareStatement(sql1);
+            String sql = "select count(*) as rowCount from board";
+            pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
             while(rs.next()) {
@@ -190,11 +214,48 @@ public class BoardDao {
 
         return boardCount;
     }
-    
+
     // 비밀번호 체크
-    public boolean comparePassword(Map map) {
-        return false;
-    };
+    public int comparePassword(Map<String, Object> map) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        System.out.println("COMPARE PASSWORD BOARD DAO");
+
+        int boardId = (int)map.get("boardId");
+        String password = (String)map.get("password");
+
+        System.out.println("map = " + map);
+        System.out.println("boardId = " + boardId);
+        System.out.println("password = " + password);
+        try {
+            conn = ConnectionTest.getConnection();
+            String sql = "select id from board where id = ? and password = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, boardId);
+            pstmt.setString(2, password);
+
+            rs = pstmt.executeQuery();
+            
+            Integer id = null;
+            
+            while(rs.next()) {
+                id = rs.getInt(1);
+            };
+            
+            // 추출된 id가 없다면 0, 있으면 1 반환
+            return id == null ? 0 : 1;
+        } catch (Exception e) {
+            System.out.println("COMPARE PASSWORD() = " + e.toString());
+            return -1;
+        } finally {
+            rs.close();
+            pstmt.close();
+            conn.close();
+        }
+    }
 
     // 조회수 증가
     public boolean increaseViewCount(Integer boardId) throws SQLException {
