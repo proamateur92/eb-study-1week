@@ -11,18 +11,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>게시글 상세보기</title>
+    <script src="//code.jquery.com/jquery-3.5.1.min.js" ></script>
     <link rel="stylesheet" type="text/css" href="./css/detail.css" />
 </head>
 <script>
-    function updateBoard() {
-        form.action = 'modify.jsp';
-        form.submit();
-    }
+    function movePage(type) {
+        const form = $('#form');
 
-    function deleteBoard() {
-        form.action = 'passwordCheck.jsp';
+        let page = "update.jsp";
+
+        if(type == "delete") page = "passwordCheck.jsp";
+
+        form.attr("action", page);
+        form.attr("method", "post");
         form.submit();
-    }
+    };
 </script>
 <%
     Integer boardId = Integer.parseInt(request.getParameter("id"));
@@ -99,12 +102,12 @@
     </div>
 </div>
 <div class="btn-box">
-    <form name="form" method="post">
+    <form id="form" method="post">
         <input type="hidden" name="boardId" value="<%= boardId%>">
     </form>
-    <button onClick="location.href='index.jsp'">목록</button>
-    <button onClick="updateBoard()">수정</button>
-    <button onClick="deleteBoard()">삭제</button>
+    <button onclick="location.href='index.jsp'">목록</button>
+    <button onclick="movePage('update')">수정</button>
+    <button onclick="movePage('delete')">삭제</button>
 </div>
 <%
     } catch (Exception e) {
