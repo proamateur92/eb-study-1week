@@ -1,6 +1,7 @@
 package dao;
 
 import dto.BoardDto;
+import dto.PageDto;
 import com.study.connection.ConnectionTest;
 
 import java.sql.Connection;
@@ -49,18 +50,22 @@ public class BoardDao {
     }
 
     // 모든 게시글 불러오기
-    public List<BoardDto> getBoardList() throws SQLException {
+    public List<BoardDto> getBoardList(PageDto pageDto) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
+
         List<BoardDto> boardList = new ArrayList<>();
 
         try {
-
             conn = ConnectionTest.getConnection();
-            String sql = "select * from board order by create_date desc, id desc";
+            String sql = "select * from board order by id desc limit ? offset ?";
             pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, pageDto.getNaviSize());
+            pstmt.setInt(2, (pageDto.getPage() - 1) * pageDto.getPageSize());
+
             rs = pstmt.executeQuery();
 
             while(rs.next()) {

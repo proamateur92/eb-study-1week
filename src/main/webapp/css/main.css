@@ -12,3 +12,28 @@ tfoot {
     background-color: #333;
     color: #fff;
 }
+
+.pagination {
+    display: flex;
+}
+
+.number {
+    display: flex;
+}
+
+.page {
+    margin: 0 0.2rem;
+}
+
+.prev,
+.next {
+    margin: 0 1rem;
+}
+
+a {
+    text-decoration: none;
+}
+
+.selected {
+    font-weight: bold;
+}
