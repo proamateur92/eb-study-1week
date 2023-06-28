@@ -6,6 +6,7 @@
 <%@page import="org.json.JSONObject"%>
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.util.regex.Pattern" %>
 <%
     request.setCharacterEncoding("utf-8");
 //    System.out.println("UPDATE ACTION JSP");
@@ -48,10 +49,10 @@
     try {
         boardDto.setId(json.getInt("boardId"));
         boardDto.setCategory_id(json.getInt("categoryId"));
-        boardDto.setAuthor(json.getString("author"));
+        boardDto.setAuthor(json.getString("author").trim());
         boardDto.setPassword(json.getString("password"));
-        boardDto.setTitle(json.getString("title"));
-        boardDto.setContent(json.getString("content"));
+        boardDto.setTitle(json.getString("title").trim());
+        boardDto.setContent(json.getString("content").trim());
     } catch(Exception e) {
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
@@ -127,8 +128,8 @@
         String title = boardDto.getTitle();
         String content = boardDto.getContent();
 
-        if(!(author.length() >= 3 && author.length() < 5)) return 0;
-        if(!(password.length() >= 4 && author.length() < 16)) return 1;
+        if(!Pattern.matches("^[\\w]*$", author) || !(author.trim().length() >= 3 && author.trim().length() < 5)) return 0;
+        if(!(password.trim().length() >= 4 && author.trim().length() < 16)) return 1;
         if(!(title.length() >= 4 && title.length() < 100)) return 2;
         if(!(content.length() >= 4 && content.length() < 2000)) return 3;
 

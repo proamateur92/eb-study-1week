@@ -71,7 +71,46 @@
 <script>
     const validateArr = ["작성자는 3글자 이상 5글자 미만이어야 합니다.", "비밀번호는 4글자 이상 16글자 미만이어야 합니다.", "제목은 4글자 이상 100글자 미만이어야 합니다.", "내용은 4글자 이상 200글자 미만이어야 합니다."];
 
+    function validationCheck() {
+        const blankReg = /\s/;
+
+        let author = $('#author');
+        let password = $('#password');
+        let title = $('#title');
+        let content = $('#content');
+
+        if(author.val().match(blankReg) || !(author.val().length >= 3 && author.val().length < 5)) {
+            alert(validateArr[0]);
+            author.focus();
+            return false;
+        }
+
+        if(!(title.val().trim().length >= 4 && title.val().trim().length < 100)) {
+            alert(validateArr[2]);
+            title.focus();
+            return false;
+        }
+
+        if(!(content.val().trim().length >= 3 && content.val().trim().length < 2000)) {
+            alert(validateArr[3]);
+            content.focus();
+            return false;
+        }
+
+        if(!(password.val().trim().length >= 4 && password.val().trim().length < 16)) {
+            alert(validateArr[1]);
+            password.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    // 수정 로직
     function onUpdate(){
+        // 유효성 검사
+        if(!validationCheck()) return;
+
         let boardId = $('#boardId').val();
         let categoryId = $('#categoryId').val();
         let author = $('#author').val();
@@ -99,6 +138,11 @@
 
                 if(code == "UP_VAL") {
                     alert(validateArr[msg]);
+
+                    if(msg == 0) $("#author").focus();
+                    if(msg == 1) $("#password").focus();
+                    if(msg == 2) $("#title").focus();
+                    if(msg == 3) $("#content").focus();
                     return;
                 }
 
