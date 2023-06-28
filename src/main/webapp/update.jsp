@@ -53,7 +53,7 @@
     BoardDao boardDao = new BoardDao();
     BoardDto boardDto = boardDao.getBoard(getBoardId);
 
-    if(boardDto == null) {
+    if(boardDto.getId() == null) {
         out.println("<script>");
         out.println("alert('존재하지 않는 게시글입니다.');");
         out.println("</script>");
