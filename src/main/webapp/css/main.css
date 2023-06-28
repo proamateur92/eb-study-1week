@@ -37,3 +37,17 @@ a {
 .selected {
     font-weight: bold;
 }
+
+.search-wrap {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+
+    padding: 0.5rem 1rem;
+
+    border: 1px solid black;
+}
+
+.search-box {
+    display: flex;
+}

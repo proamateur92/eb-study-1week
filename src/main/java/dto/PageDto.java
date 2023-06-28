@@ -30,7 +30,7 @@ public class PageDto {
     public PageDto(Integer page, Integer totalCount) {
         // 게시글 갯수가 0 미만이면 0으로 초기화
         this.totalCount = totalCount < 0 ? 0 : totalCount;
-        
+
         // 페이지 총 갯수 초기화
         this.totalPage = (int)Math.ceil((double)totalCount / pageSize);
 
@@ -45,11 +45,11 @@ public class PageDto {
         }
 
         // 네비게이션의 시작 범위 초기화
-        this.beginPage = (page - 1) / naviSize * naviSize + 1;
+        this.beginPage = (this.page - 1) / naviSize * naviSize + 1;
         
         // 네비게이션의 마지막 범위 초기화
         this.endPage = Math.min(beginPage + naviSize - 1, totalPage);
-        this.isPrev = beginPage > naviSize;
+        this.isPrev = this.page > naviSize;
         this.isNext = totalPage / naviSize * 10 >= endPage;
     }
 

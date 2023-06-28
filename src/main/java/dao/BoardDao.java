@@ -4,10 +4,7 @@ import dto.BoardDto;
 import dto.PageDto;
 import com.study.connection.ConnectionTest;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class BoardDao {
@@ -50,21 +47,45 @@ public class BoardDao {
     }
 
     // 모든 게시글 불러오기
-    public List<BoardDto> getBoardList(PageDto pageDto) throws SQLException {
+    public List<BoardDto> getBoardList(PageDto pageDto, String startDate, String endDate, int categoryId, String keyword) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
 
         List<BoardDto> boardList = new ArrayList<>();
 
         try {
             conn = ConnectionTest.getConnection();
-            String sql = "select * from board order by id desc limit ? offset ?";
+
+             String sql = "select * from board where (author like ? or title like ? or content like ?) and category_id = ? and create_date >= ? and create_date <= ? order by id desc  limit ? offset ?";
+
+             if(categoryId == 0) {
+                sql = "select * from board where (author like ? or title like ? or content like ?) and create_date >= ? and create_date <= ? order by id desc  limit ? offset ?";
+            }
+
             pstmt = conn.prepareStatement(sql);
 
-            pstmt.setInt(1, pageDto.getNaviSize());
-            pstmt.setInt(2, (pageDto.getPage() - 1) * pageDto.getPageSize());
+            String startTimeStr = "00:00:00";
+            String endTimeStr = "23:59:59";
+
+            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setString(2, "%" + keyword + "%");
+            pstmt.setString(3, "%" + keyword + "%");
+
+            System.out.println("startDate= " + startDate + " " + startTimeStr);
+            System.out.println("endDate= " + endDate + " " + endTimeStr);
+            if(categoryId == 0) {
+                pstmt.setTimestamp(4, Timestamp.valueOf(startDate + " " + startTimeStr));
+                pstmt.setTimestamp(5, Timestamp.valueOf(endDate + " " + endTimeStr));
+                pstmt.setInt(6, pageDto.getNaviSize());
+                pstmt.setInt(7, (pageDto.getPage() - 1) * pageDto.getPageSize());
+            } else {
+                pstmt.setInt(4, categoryId);
+                pstmt.setTimestamp(5, Timestamp.valueOf(startDate + " " + startTimeStr));
+                pstmt.setTimestamp(6, Timestamp.valueOf(endDate + " " + endTimeStr));
+                pstmt.setInt(7, pageDto.getNaviSize());
+                pstmt.setInt(8, (pageDto.getPage() - 1) * pageDto.getPageSize());
+            }
 
             rs = pstmt.executeQuery();
 
@@ -193,7 +214,7 @@ public class BoardDao {
     };
 
     // 게시글 갯수
-    public int getBoardCount() throws SQLException {
+    public int getBoardCount(String startDate, String endDate, int categoryId, String keyword) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -201,9 +222,35 @@ public class BoardDao {
         int boardCount = 0;
 
         try {
+            String sql = "select count(*) as rowCount from board where (author like ? or title like ? or content like ?) and category_id = ? and create_date >= ? and create_date <= ?";
+
+            if(categoryId == 0) {
+                sql = "select count(*) as rowCount from board where (author like ? or title like ? or content like ?) and create_date >= ? and create_date <= ?";
+            }
+
             conn = ConnectionTest.getConnection();
-            String sql = "select count(*) as rowCount from board";
             pstmt = conn.prepareStatement(sql);
+
+            String startTimeStr = "00:00:00";
+            String endTimeStr = "23:59:59";
+
+            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setString(2, "%" + keyword + "%");
+            pstmt.setString(3, "%" + keyword + "%");
+
+            System.out.println("startDate= " + startDate + " " + startTimeStr);
+            System.out.println("endDate= " + endDate + " " + endTimeStr);
+
+            if(categoryId == 0) {
+                pstmt.setTimestamp(4, Timestamp.valueOf(startDate + " " + startTimeStr));
+                pstmt.setTimestamp(5, Timestamp.valueOf(endDate + " " + endTimeStr));
+            } else {
+                pstmt.setInt(4, categoryId);
+                pstmt.setTimestamp(5, Timestamp.valueOf(startDate + " " + startTimeStr));
+                pstmt.setTimestamp(6, Timestamp.valueOf(endDate + " " + endTimeStr));
+
+            }
+
             rs = pstmt.executeQuery();
 
             while(rs.next()) {
