@@ -14,8 +14,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
-    <title>게시글 목록</title>
+    <script src="./js/main.js"></script>
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title>게시글 목록</title>
 </head>
 
 <%
@@ -64,50 +65,23 @@
 
     BoardDao boardDao = new BoardDao();
 
+    // 카테고리 리스트를 위한 map
     Map<Integer, String> categoryMap = boardDao.getCategoryList();
+
+    // 카테고리 값이 카테고리 범위를 초과하면 카테고리 길이만큼 값을 재할당
+    categoryType = categoryType > categoryMap.size() ? categoryMap.size() : categoryType;
 
     // 페이징 처리
     int boardCount = boardDao.getBoardCount(startDate, endDate, categoryType, getKeyword);
     PageDto pageDto = new PageDto(getPage, boardCount);
 
+    System.out.println("getPage = " + getPage);
     // 해당 조건에 일치하는 게시글 가져오기
     List<BoardDto> boardList = boardDao.getBoardList(pageDto, startDate, endDate, categoryType, getKeyword);
+
+    System.out.println(boardList);
 %>
-<script>
-    function movePage(page) {
-        const startDate = $('#startDate').val().replaceAll('-', '');
-        const endDate = $('#endDate').val().replaceAll('-', '');
-        const category = $('#category').val();
-        const keyword = $('#keyword').val();
 
-        location.href = 'index.jsp?page='+ page + '&startDate=' + startDate + '&endDate=' + endDate+ '&category=' + category + '&keyword=' + keyword;
-    }
-
-    // 시작 날짜 변경 시 끝 날짜의 최소 범위 변경
-    function updateMinRange() {
-        const getStartDate = $('#startDate');
-        const getEndDate = $('#endDate');
-
-        getEndDate.attr('min', getStartDate.val());
-    }
-
-    // 끝 날짜 변경 시 시작 날짜의 최대 범위 변경
-    function updateMaxRange() {
-        const getStartDate = $('#startDate');
-        const getEndDate = $('#endDate');
-
-        getStartDate.attr('max', getEndDate.val());
-    }
-
-    function onSearch() {
-        const startDate = $('#startDate').val().replaceAll('-', '');
-        const endDate = $('#endDate').val().replaceAll('-', '');
-        const category = $('#category').val();
-        const keyword = $('#keyword').val();
-
-        location.href = 'index.jsp?page=1&startDate=' + startDate + '&endDate=' + endDate+ '&category=' + category + '&keyword=' + keyword;
-    }
-</script>
 <body>
 <h1>자유 게시판 - 목록</h1>
 <input type="hidden" id="page" value="<%= pageDto.getPage()%>" />
@@ -166,7 +140,9 @@
                 out.print("<tr>");
                 out.print("<td>" + categoryMap.get(board.getCategory_id()) + "</td>");
                 out.print("<td>" + board.getFile_flag() + "</td>");
-                out.print("<td><a href='detail.jsp?id=" + board.getId() + "'>" + getTitle + "</a></td>");
+                %>
+                <td class="link" onclick="movePage(<%= pageDto.getPage()%>, 'DETAIL', <%= board.getId()%>)"><%= board.getTitle()%></td>
+                <%
                 out.print("<td>" + board.getAuthor() + "</td>");
                 out.print("<td>" + board.getView_count() + "</td>");
                 out.print("<td>" + createDate + "</td>");
@@ -214,7 +190,7 @@
     %>
 
 </div>
-<button onclick="location.href='write.jsp'">등록</button>
+<button onclick="movePage(<%= pageDto.getPage()%> ,'WRITE')">등록</button>
 
 </body>
 </html>
