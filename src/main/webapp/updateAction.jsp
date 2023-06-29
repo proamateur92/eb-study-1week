@@ -7,6 +7,7 @@
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.regex.Matcher" %>
 <%
     request.setCharacterEncoding("utf-8");
 //    System.out.println("UPDATE ACTION JSP");
@@ -37,7 +38,6 @@
     if("".equals(jsonString)) {
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
-
         responsePrint(jobj, message, code, response, out);
         return;
     }
@@ -53,6 +53,8 @@
         boardDto.setPassword(json.getString("password"));
         boardDto.setTitle(json.getString("title").trim());
         boardDto.setContent(json.getString("content").trim());
+
+        System.out.println("boardDto = " + boardDto);
     } catch(Exception e) {
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
@@ -92,6 +94,7 @@
     int resultNumber = boardDao.comparePassword(boardMap);
 
     if(resultNumber == 0) {
+        System.out.println("비밀번호 일치 x");
         message = "비밀번호가 일치하지 않습니다.";
         code = "UP_PWD";
 
@@ -100,6 +103,7 @@
     }
 
     if(resultNumber == -1) {
+        System.out.println("비밀번호 비교 문제");
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
 
@@ -111,6 +115,7 @@
     int rowCount = boardDao.updateBoard(boardDto);
 
     if(rowCount != 1) {
+        System.out.println("rowCount != -1");
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
     }
@@ -128,9 +133,20 @@
         String title = boardDto.getTitle();
         String content = boardDto.getContent();
 
-        if(!Pattern.matches("^[\\w]*$", author) || !(author.trim().length() >= 3 && author.trim().length() < 5)) return 0;
-        if(!(password.trim().length() >= 4 && author.trim().length() < 16)) return 1;
+        final String BLANKREG = "(\\s)";
+
+        Matcher matcher = Pattern.compile(BLANKREG).matcher(author);
+        // 작성자가 공백이 포함되어 있거나 글자수의 길이 범위와 일치하지 않을 경우
+        if(matcher.find() || !(author.trim().length() >= 3 && author.trim().length() < 5)) return 0;
+
+        // 비밀번호의 길이 범위가 일치하지 않을 경우
+        matcher = Pattern.compile(BLANKREG).matcher(password);
+        if(matcher.find() || !(password.trim().length() >= 4 && author.trim().length() < 16)) return 1;
+
+        // 제목 길이 범위가 일치하지 않을 경우
         if(!(title.length() >= 4 && title.length() < 100)) return 2;
+
+        // 내용의 길이 범위가 일치하지 않을 경우
         if(!(content.length() >= 4 && content.length() < 2000)) return 3;
 
         return -1;
