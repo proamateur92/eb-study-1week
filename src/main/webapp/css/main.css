@@ -51,3 +51,8 @@ a {
 .search-box {
     display: flex;
 }
+
+.link {
+    text-decoration-line: underline;
+    cursor: pointer;
+}

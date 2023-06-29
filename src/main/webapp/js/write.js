@@ -1,7 +1,8 @@
 function insertBoard() {
     if(!validationCheck()) return;
 
-    form.action = "writeAction.jsp";
+    const form = $('#form');
+    form.attr('action', 'writeAction.jsp');
     form.submit();
 };
 
@@ -12,94 +13,94 @@ function validationCheck () {
     // 비밀번호 체크를 위한 정규식 (영문, 숫자, 특수문자 반드시 포함 / 길이 4 ~ 16)
     const passwordReg = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{4,16}$/;
 
-    const category = form.category.value;
-    const author = form.author.value;
-    const title = form.title.value;
-    const content = form.content.value;
-    const password = form.password.value;
-    const passwordCheck = form.passwordCheck.value;
+    const category = $('#category');
+    const author = $('#author');
+    const title = $('#title');
+    const content = $('#content');
+    const password = $('#password');
+    const passwordCheck = $('#passwordCheck');
 
-    if(category == 0) {
+    if(category.val() == 0) {
         alert('카테고리를 선택해주세요.');
-        form.category.focus();
+        category.focus();
         return false;
     }
 
-    if(author.trim() == '') {
+    if(author.val().trim() == '') {
         alert('작성자를 입력해주세요.');
-        form.author.focus();
+        author.focus();
         return false;
     }
 
-    if(author.match(blankReg)) {
+    if(author.val().match(blankReg)) {
         alert('작성자 이름에는 공백이 포함될 수 없습니다.');
-        form.author.focus();
+        author.focus();
         return false;
     }
 
-    if(!(author.length >= 3 && author.length < 5)) {
+    if(!(author.val().length >= 3 && author.val().length < 5)) {
         alert('작성자는 3글자 이상, 5글자 미만이어야 합니다.');
-        form.author.focus();
+        author.focus();
         return false;
     }
 
-    if(form.password.value.trim() == '') {
+    if(password.val().trim() == '') {
         alert('비밀번호를 입력해주세요.');
-        form.password.focus();
+        password.focus();
         return false;
     }
 
-    if(form.passwordCheck.value.trim() == '') {
+    if(passwordCheck.val().trim() == '') {
         alert('비밀번호를 다시 입력해주세요.');
-        form.passwordCheck.focus();
+        passwordCheck.focus();
         return false;
     }
 
-    if(!(password.length >= 4 && password.length < 16)) {
+    if(!(password.val().length >= 4 && password.val().length < 16)) {
         alert('비밀번호는 4글자 이상, 16글자 미만이어야 합니다.');
-        form.password.focus();
+        password.focus();
         return false;
     }
 
-    if(password.match(blankReg)) {
+    if(password.val().match(blankReg)) {
         alert('비밀번호에는 공백이 포함될 수 없습니다.');
-        form.password.focus();
+        password.focus();
         return false;
     }
 
-    if(!passwordReg.test(password)) {
+    if(!passwordReg.test(password.val())) {
         alert('비밀번호에는 영문, 숫자, 특수문자가 반드시 포함되어야 합니다.');
-        form.password.focus();
+        password.focus();
         return false;
     }
 
-    if(password != passwordCheck) {
+    if(password.val() != passwordCheck.val()) {
         alert('비밀번호가 일치하지 않습니다.');
-        form.passwordCheck.focus();
+        passwordCheck.focus();
         return false;
     }
 
-    if(title.trim() == '') {
+    if(title.val().trim() == '') {
         alert('제목을 입력해주세요.');
-        form.title.focus();
+        title.focus();
         return false;
     }
 
-    if(!(title.length >= 4 && title.length < 100)) {
+    if(!(title.val().length >= 4 && title.val().length < 100)) {
         alert('제목은 4글자 이상, 100글자 미만이어야 합니다.');
-        form.title.focus();
+        title.focus();
         return false;
     }
 
-    if(content.trim() == '') {
+    if(content.val().trim() == '') {
         alert('내용을 입력해주세요.');
-        form.content.focus();
+        content.focus();
         return false;
     }
 
-    if(!(content.length >= 4 && content.length < 2000)) {
+    if(!(content.val().length >= 4 && content.val().length < 2000)) {
         alert('제목은 4글자 이상, 2000글자 미만이어야 합니다.');
-        form.content.focus();
+        content.focus();
         return false;
     }
 
