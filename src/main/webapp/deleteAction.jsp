@@ -35,6 +35,9 @@
     String delCode = "DEL_OK";
 
     // 게시글 번호 혹은 비밀번호가 null일 경우
+    // 정상적인 페이지로 요청이 온 경우에는 게시글 번호가 안넘어올 수 없음 - 정상적이지 않은 요청 의심
+    // 숫자 체크 필요
+    // 비밀번호 null은 유효성 검사 차원으로 처리하면 될듯
     if(getBoardId == null || getPassword == null) {
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         delCode = "DEL_ERR";
