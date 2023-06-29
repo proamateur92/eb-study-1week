@@ -8,14 +8,11 @@
 }
 
 .top {
-    display: flex;
-    justify-content: space-between;
+    padding: 1rem 0;
+}
 
-    border-bottom: 2px solid black;
-
-    padding-bottom: 1rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
+.top > .nickname {
+    margin-right: 1rem;
 }
 
 .category {
@@ -54,7 +51,11 @@
     margin-bottom: 0.3rem;
 }
 
-.comment-input-box {
+.comment > .info-box {
+    margin-bottom: 0.5rem;
+}
+
+.comment > .input-box {
     display: flex;
     justify-content: space-between;
 
@@ -64,12 +65,12 @@
     padding: 1rem 0;
 }
 
-.comment-input-box > textarea {
+.comment > .input-box > textarea {
     width: 85%;
     resize: none;
 }
 
-.comment-input-box > button {
+.comment > .input-box > button {
     width: 13%;
 }
 
