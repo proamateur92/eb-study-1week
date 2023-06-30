@@ -1,0 +1,66 @@
+.row,
+.page-link {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+thead {
+    text-align: center;
+}
+
+td:not(td:nth-of-type(3)) {
+    text-align: center;
+}
+
+.selected {
+    font-weight: bold;
+}
+
+.search-wrap {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+
+    padding: 0.5rem 1rem;
+
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+}
+
+.keyword-box {
+    display: flex;
+    align-items: center;
+}
+
+#keyword {
+    margin: 0 0.5rem;
+}
+
+.link {
+    text-decoration-line: underline;
+    cursor: pointer;
+}
+
+input {
+    height: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #f8f9fa;
+}
+
+select {
+    height: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #f8f9fa;
+}
