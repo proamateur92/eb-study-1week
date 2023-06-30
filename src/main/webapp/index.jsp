@@ -65,11 +65,20 @@
 
     BoardDao boardDao = new BoardDao();
 
+    Map<Integer, String> categoryMap = null;
+
+    try {
     // 카테고리 리스트를 위한 map
-    Map<Integer, String> categoryMap = boardDao.getCategoryList();
+    categoryMap = boardDao.getCategoryList();
 
     // 카테고리 값이 카테고리 범위를 초과하면 카테고리 길이만큼 값을 재할당
     categoryType = categoryType > categoryMap.size() ? categoryMap.size() : categoryType;
+    } catch (Exception e) {
+        e.printStackTrace();
+        out.println("<script>");
+        out.println("alert('통신이 불안정합니다. 잠시후 다시 시도해주세요.');");
+        out.println("</script>");
+    }
 
     // 페이징 처리
     int boardCount = boardDao.getBoardCount(startDate, endDate, categoryType, getKeyword);

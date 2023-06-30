@@ -1,7 +1,6 @@
 package dao;
 
 import dto.BoardDto;
-import dto.CommentDto;
 import dto.PageDto;
 import com.study.connection.ConnectionTest;
 
@@ -11,30 +10,45 @@ import java.util.*;
 public class BoardDao {
 
     // 게시글 등록
-    public int writeBoard(BoardDto boardDto) throws SQLException {
+    public Map<String, Integer> writeBoard(BoardDto boardDto) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
+        Map<String, Integer> map = null;
+
         // 예외처리
         try {
             conn = ConnectionTest.getConnection();
-            String sql = "insert into board (category_id, author, password, title, content, view_count, file_flag, create_date) values (?, ?, ?, ?, ?, 0, 'N', now())";
-            pstmt = conn.prepareStatement(sql);
+            String sql = "insert into board (category_id, author, password, title, content, view_count, file_flag, create_date) values (?, ?, ?, ?, ?, 0, ?, now())";
+            pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setInt(1, boardDto.getCategory_id());
             pstmt.setString(2, boardDto.getAuthor());
             pstmt.setString(3, boardDto.getPassword());
             pstmt.setString(4, boardDto.getTitle());
             pstmt.setString(5, boardDto.getContent());
+            pstmt.setString(6, boardDto.getFile_flag());
 
             int rowCount = pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+
+            rs.next();
 
             if (rowCount != 1) {
                 throw new Exception("board insert failed");
             }
 
-            return rowCount;
+            int boardId = rs.getInt(1);
+
+            map = new HashMap<>();
+
+            map.put("rowCount", rowCount);
+            map.put("boardId", boardId);
+
+            System.out.println("insert result map = " + map);
+
+            return map;
 
         } catch (Exception e) {
             System.out.println("insert error = " + e.toString());
@@ -44,7 +58,10 @@ public class BoardDao {
             conn.close();
         }
 
-        return -1;
+        map.put("rowCount", -1);
+        map.put("boardId", null);
+
+        return map;
     }
 
     // 모든 게시글 불러오기
@@ -187,7 +204,7 @@ public class BoardDao {
     };
 
     // 게시글 삭제
-    public int deleteBoard(Map<String, String> map) throws SQLException {
+    public int deleteBoard(Map<String, Object> map) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
 
@@ -198,8 +215,8 @@ public class BoardDao {
             String sql = "delete from board where id = ? and password = ?";
             pstmt = conn.prepareStatement(sql);
 
-            pstmt.setInt(1, Integer.parseInt(map.get("boardId")));
-            pstmt.setString(2, map.get("password"));
+            pstmt.setInt(1, (Integer)map.get("boardId"));
+            pstmt.setString(2, (String)map.get("password"));
 
             return pstmt.executeUpdate();
 
@@ -276,7 +293,7 @@ public class BoardDao {
         
         System.out.println("COMPARE PASSWORD BOARD DAO");
 
-        int boardId = (int)map.get("boardId");
+        int boardId = (Integer) map.get("boardId");
         String password = (String)map.get("password");
 
         System.out.println("map = " + map);
@@ -371,85 +388,4 @@ public class BoardDao {
 
         return null;
     };
-
-    // 댓글 작성
-    public int writeComment (CommentDto commentDto) throws SQLException{
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
-        System.out.println("DAO WRITE COMMENT");
-        System.out.println("commentDto = " + commentDto);
-        // 예외처리
-        try {
-            conn = ConnectionTest.getConnection();
-            String sql = "insert into comment (board_id, nickname, password, content, create_date) values (?, ?, '1234', ?, now())";
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setInt(1, commentDto.getBoard_id());
-            pstmt.setString(2, commentDto.getNickname());
-            pstmt.setString(3, commentDto.getContent());
-
-            int rowCount = pstmt.executeUpdate();
-
-            System.out.println("rowCount = " + rowCount);
-
-            if (rowCount != 1) {
-                throw new Exception("comment insert failed");
-            }
-
-            System.out.println("INSERT SUCCESS");
-            return rowCount;
-
-        } catch (Exception e) {
-            System.out.println("comment insert error = " + e.toString());
-
-        } finally {
-            pstmt.close();
-            conn.close();
-        }
-
-        System.out.println("INSERT FAIL");
-        return -1;
-    }
-    
-    // 댓글 불러오기
-    public List<CommentDto> getCommentList (Integer boardId) {
-        System.out.println("GET COMMENTLIST");
-        System.out.println("boardId = " + boardId);
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        List<CommentDto> commentList = new ArrayList<>();
-
-        try {
-            conn = ConnectionTest.getConnection();
-            String sql = "select * from comment where board_id = ? order by id desc";
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setInt(1, boardId);
-
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                CommentDto commentDto = new CommentDto();
-
-                commentDto.setId(rs.getInt("id"));
-                commentDto.setBoard_id(rs.getInt("board_id"));
-                commentDto.setNickname(rs.getString("nickname"));
-                commentDto.setContent(rs.getString("content"));
-                commentDto.setPassword(rs.getString("password"));
-                commentDto.setCreate_date(rs.getTimestamp("create_date"));
-
-                commentList.add(commentDto);
-            }
-        } catch (Exception e) {
-            System.out.println("read commentList = " + e.toString());
-            commentList = null;
-        }
-
-        System.out.println("commentList = " + commentList);
-        return commentList;
-    }
 }

@@ -4,6 +4,9 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.time.LocalDate" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.FileDto" %>
+<%@ page import="dao.FileDao" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -50,9 +53,21 @@
 
     Integer getBoardId = null;
 
+    BoardDao boardDao = new BoardDao();
+    String message = "";
+
     // 게시글 번호가 없으면
     try {
         getBoardId = Integer.parseInt(request.getParameter("id"));
+
+        Integer targetBoardId = boardDao.getBoard(getBoardId).getId();
+
+        System.out.println("targetBoardId = " + targetBoardId);
+
+        if(targetBoardId == null) {
+            message = "존재하지 않는 게시글입니다.";
+            throw new Exception("NO EXIST BOARD");
+        }
 
         String pageString = request.getParameter("page");
         getPage = Integer.parseInt(pageString == null ? "1" : pageString);
@@ -78,38 +93,39 @@
             getStartDate = getEndDate;
         }
     } catch (Exception e) {
+        message = "".equals(message) ? "오류가 발생했습니다. 게시글 목록으로 이동합니다." : message;
+
         out.println("<script>");
-        out.println("alert('잘못된 요청입니다. 게시글 목록으로 이동합니다.');");
+        out.println("alert('" + message + "');");
+        out.println("location.href='index.jsp'");
         out.println("</script>");
-        response.sendRedirect("index.jsp");
+
         return;
     }
 
     System.out.println("UPDATE JSP");
     System.out.println("getBoardId = " + getBoardId);
 
-    BoardDao boardDao = new BoardDao();
-    BoardDto boardDto = boardDao.getBoard(getBoardId);
+    FileDao fileDao = new FileDao();
 
-    if(boardDto.getId() == null) {
-        out.println("<script>");
-        out.println("alert('존재하지 않는 게시글입니다.');");
-        out.println("</script>");
-        response.sendRedirect("index.jsp");
-    };
+    BoardDto boardDto = boardDao.getBoard(getBoardId);
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 
     String createDate = sdf.format(boardDto.getCreate_date());
     String updateDate = boardDto.getUpdate_date() == null ? "-" : sdf.format(boardDto.getUpdate_date());
 
+    // 카테고리 리스트
     Map<Integer, String> categoryMap = boardDao.getCategoryList();
+
+    // 파일 리스트
+    List<FileDto> fileList = fileDao.getFileList(getBoardId);
 %>
 <body>
 <div>
     <h1>게시판 - 수정</h1>
 </div>
-<div>
+<form enctype="multipart/form-data">
     <input type="hidden" id="boardId" value="<%= getBoardId%>" />
     <input type="hidden" id="page" value="<%= getPage%>" />
     <input type="hidden" id="category" value="<%= getCategoryType%>" />
@@ -163,32 +179,37 @@
     <div class="row">
         <div class="title">내용<span class="point">*</span></div>
         <div>
-            <textarea id="content"><%= boardDto.getContent()%></textarea>
+            <textarea id="content"><%= boardDto.getContent().replace("<br>", "\n")%></textarea>
         </div>
     </div>
     <div class="row">
         <div class="title">파일 첨부</div>
         <div class="content file-wrap">
-            <div class="file-box">
-                <div>아이콘</div>
-                <span>첨부파일1.pdf</span>
-                <button>Download</button>
-                <button>X</button>
-            </div>
-            <div class="file-box">
-                <input type="text">
-                <button>파일찾기</button>
-            </div>
-            <div class="file-box">
-                <input type="text">
-                <button>파일찾기</button>
-            </div>
+            <%
+                for(int i = 0; i < fileList.size(); i++) {
+            %>
+                <div class="file-box">
+                    <div>아이콘</div>
+                    <span><%= fileList.get(i).getOriginal_name()%></span>
+                    <button>Download</button>
+                    <button type="button" onclick="changeDeleteFlag(<%= getBoardId%>, '<%= fileList.get(i).getSave_name()%>', true)">X</button>
+                </div>
+            <%
+                }
+                for(int i = 1 - (fileList.size()); i > 0; i--) {
+            %>
+                <div class="file-box">
+                    <input type="file" id="file">
+                </div>
+            <%
+                }
+            %>
         </div>
     </div>
     <div>
-        <button onclick="movePage()">취소</button>
-        <button onclick="onUpdate()">저장</button>
+        <button type="button" onclick="movePage()">취소</button>
+        <button type="button" onclick="onUpdate()">저장</button>
     </div>
-</div>
+</form>
 </body>
 </html>

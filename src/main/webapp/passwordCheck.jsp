@@ -1,4 +1,5 @@
 <%@ page import="java.time.LocalDate" %>
+<%@ page import="dao.BoardDao" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,9 +24,20 @@
 
     Integer getBoardId = null;
 
+    String message = "";
+    BoardDao boardDao = new BoardDao();
+
     // 게시글 번호가 없으면
     try {
         getBoardId = Integer.parseInt(request.getParameter("id"));
+        Integer targetBoardId = boardDao.getBoard(getBoardId).getId();
+
+        System.out.println("targetBoardId = " + targetBoardId);
+
+        if(targetBoardId == null) {
+            message = "존재하지 않는 게시글입니다.";
+            throw new Exception("NO EXIST BOARD");
+        }
 
         String pageString = request.getParameter("page");
         getPage = Integer.parseInt(pageString == null ? "1" : pageString);
@@ -51,10 +63,11 @@
             getStartDate = getEndDate;
         }
     } catch (Exception e) {
+        message = "".equals(message) ? "오류가 발생했습니다. 게시글 목록으로 이동합니다." : message;
         out.println("<script>");
-        out.println("alert('잘못된 요청입니다. 게시글 목록으로 이동합니다.');");
+        out.println("alert('"+ message + "');");
+        out.println("location.href='index.jsp'");
         out.println("</script>");
-        response.sendRedirect("index.jsp");
         return;
     }
 

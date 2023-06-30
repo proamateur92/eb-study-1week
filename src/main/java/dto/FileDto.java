@@ -1,5 +1,6 @@
 package dto;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class FileDto {
@@ -9,8 +10,18 @@ public class FileDto {
     private String original_name;
     private String save_name;
     private Integer size;
-    private boolean isDelete;
-    private Date create_date;
+    private String delete_flag;
+    private Timestamp create_date;
+
+
+    public FileDto() {}
+
+    public FileDto(Integer ranking, String original_name, String save_name, Integer size) {
+        this.ranking = ranking;
+        this.original_name = original_name;
+        this.save_name = save_name;
+        this.size = size;
+    }
 
     public Integer getId() {
         return id;
@@ -60,19 +71,19 @@ public class FileDto {
         this.size = size;
     }
 
-    public boolean isDelete() {
-        return isDelete;
+    public String getDelete_flag() {
+        return delete_flag;
     }
 
-    public void setDelete(boolean delete) {
-        isDelete = delete;
+    public void setDelete_flag(String delete) {
+        delete_flag = delete;
     }
 
-    public Date getCreate_date() {
+    public Timestamp getCreate_date() {
         return create_date;
     }
 
-    public void setCreate_date(Date create_date) {
+    public void setCreate_date(Timestamp create_date) {
         this.create_date = create_date;
     }
 
@@ -85,7 +96,7 @@ public class FileDto {
                 ", original_name='" + original_name + '\'' +
                 ", save_name='" + save_name + '\'' +
                 ", size=" + size +
-                ", isDelete=" + isDelete +
+                ", delete_flag=" + delete_flag +
                 ", create_date=" + create_date +
                 '}';
     }

@@ -1,9 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="dao.BoardDao" %>
-<%@ page import="dto.BoardDto" %>
 <%@ page import="java.util.regex.Pattern" %>
 <%@ page import="java.util.regex.Matcher" %>
 <%@ page import="dto.CommentDto" %>
+<%@ page import="dao.CommentDao" %>
 
 <%
     request.setCharacterEncoding("utf-8");
@@ -13,7 +12,7 @@
 
     String message = "댓글 작성하였습니다.";
 
-    BoardDao boardDao = new BoardDao();
+    CommentDao commentDao = new CommentDao();
     CommentDto commentDto = new CommentDto();
 
     Integer boardId = null;
@@ -80,7 +79,7 @@
             System.out.println("getEndDate = " + getEndDate);
             System.out.println("getKeyword = " + getKeyword);
 
-            int errCode = boardDao.writeComment(commentDto);
+            int errCode = commentDao.writeComment(commentDto);
             System.out.println("errCode = " + errCode);
 
             if(errCode != 1) {

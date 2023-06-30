@@ -72,7 +72,7 @@
         location.href = 'index.jsp?page='+ <%= getPage%> + '&startDate=' + <%= getStartDate%> + '&endDate=' + <%= getEndDate%>+ '&category=' + <%= getCategoryType%> + '&keyword=' + keywordValue;
     }
 </script>
-<form id="form" method="post">
+<form id="form" method="post" enctype="multipart/form-data">
     <input type="hidden" name="page" value="<%= getPage%>" />
     <input type="hidden" name="getCategory" value="<%= getCategoryType%>" />
     <input type="hidden" name="startDate" value="<%= getStartDate%>" />
@@ -120,19 +120,7 @@
     </div>
     <div class="row">
         <div class="title">파일 첨부</div>
-        <div class="conetent file-wrap">
-            <div>
-                <input type="text">
-                <button>파일찾기</button>
-            </div>
-            <div>
-                <input type="text">
-                <button>파일찾기</button>
-            </div>
-            <div>
-                <input type="text">
-                <button>파일찾기</button>
-            </div>
+                <input type="file" name="file" id="file">
         </div>
     </div>
 </form>

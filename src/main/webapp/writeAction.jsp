@@ -3,6 +3,11 @@
 <%@ page import="dto.BoardDto" %>
 <%@ page import="java.util.regex.Pattern" %>
 <%@ page import="java.util.regex.Matcher" %>
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="dto.FileDto" %>
+<%@ page import="dao.FileDao" %>
 
 <%
     System.out.println("WRITE ACTION");
@@ -17,6 +22,7 @@
 
     BoardDao boardDao = new BoardDao();
     BoardDto boardDto = new BoardDto();
+    FileDao fileDao = new FileDao();
 
     String getPage = null;
     String getCategory = null;
@@ -24,19 +30,30 @@
     String getEndDate = null;
     String getKeyword = null;
 
-    try {
-        System.out.println("try block start");
-        System.out.println(request.getParameter("category"));
-        System.out.println(request.getParameter("author"));
-        System.out.println(request.getParameter("password"));
-        System.out.println(request.getParameter("title"));
-        System.out.println(request.getParameter("content"));
 
-        Integer categoryId = Integer.parseInt(request.getParameter("category"));
-        String author = request.getParameter("author");
-        String password = request.getParameter("password");
-        String title = request.getParameter("title");
-        String content = request.getParameter("content");
+    try {
+        // 파일 다운로드 설정
+        String uploadDirectory = "C:\\Users\\kkasu\\Desktop\\게시판 샘플 이미지\\upload";
+
+        System.out.println("uploadDirectory = " + uploadDirectory);
+
+        int maxFileSize = 10 * 1024 * 1024; // 10MB
+        String encoding = "UTF-8";
+        MultipartRequest multipartRequest = new MultipartRequest(request, uploadDirectory, maxFileSize, encoding, new DefaultFileRenamePolicy());
+
+        String originName = multipartRequest.getOriginalFileName("file");
+        String uploadName = multipartRequest.getFilesystemName("file");
+
+        System.out.println("originName = " + originName);
+        System.out.println("uploadName = " + uploadName);
+
+        // 입력 값
+        Integer categoryId = Integer.parseInt(multipartRequest.getParameter("category"));
+        String author = multipartRequest.getParameter("author");
+        String password = multipartRequest.getParameter("password");
+        String title = multipartRequest.getParameter("title");
+        String content = multipartRequest.getParameter("content").replace("\n", "<br>");
+
         System.out.println("finish get params");
 
         System.out.println("categoryId = " + categoryId);
@@ -96,17 +113,21 @@
         boardDto.setPassword(password);
         boardDto.setTitle(title);
         boardDto.setContent(content);
+        boardDto.setFile_flag(originName != null && uploadName != null ? "Y" : "N");
 
         System.out.println("boardDto = " + boardDto);
 
         try {
-            int errCode = boardDao.writeBoard(boardDto);
+            Map<String, Integer> insertMap = boardDao.writeBoard(boardDto);
+            System.out.println("insertMap = " + insertMap);
 
-            getPage = request.getParameter("page");
-            getCategory = request.getParameter("getCategory");
-            getStartDate = request.getParameter("startDate");
-            getEndDate = request.getParameter("endDate");
-            getKeyword = request.getParameter("keyword");
+            int errCode = insertMap.get("rowCount");
+
+            getPage = multipartRequest.getParameter("page");
+            getCategory = multipartRequest.getParameter("getCategory");
+            getStartDate = multipartRequest.getParameter("startDate");
+            getEndDate = multipartRequest.getParameter("endDate");
+            getKeyword = multipartRequest.getParameter("keyword");
 
             System.out.println("getPage = " + getPage);
             System.out.println("getCategory = " + getCategory);
@@ -115,9 +136,23 @@
             System.out.println("getKeyword = " + getKeyword);
 
             System.out.println("errCode = " + errCode);
+
             if(errCode != 1) {
                 throw new Exception();
             }
+
+            FileDto fileDto = new FileDto();
+            fileDto.setBoard_id(insertMap.get("boardId"));
+            fileDto.setOriginal_name(originName);
+            fileDto.setSave_name(uploadName);
+
+            // 파일 업로드 정보가 있을 때에만 파일 업로드
+            if(originName != null && uploadName != null) {
+                // insert된 row가 1이 아니라면 에러 발생
+                if(1 != fileDao.saveFile(fileDto)) throw new Exception("file save error");
+            }
+
+            link = "detail.jsp?id=" + insertMap.get("boardId") + "&page=" + getPage + "&startDate=" + getStartDate + "&endDate=" + getEndDate + "&category=" + getCategory + "&keyword=" + getKeyword;
         } catch (Exception e) {
             // 글 등록이 안됐을 때
             message = "오류가 발생했습니다. 잠시후 다시 시도해주세요.";
@@ -125,6 +160,7 @@
         }
     } catch (Exception e) {
         System.out.println("유효성 검사 통과 실패");
+        e.printStackTrace();
         // 유효성 검사 통과 못했을 때
         link = "write.jsp?page=" + getPage + "&startDate=" + getStartDate + "&endDate=" + getEndDate + "&category=" + getCategory + "&keyword=" + getKeyword;
 

@@ -11,7 +11,7 @@ public class ConnectionTest {
     static final String USER = "ebsoft";
     static final String PASS = "ebsoft";
 
-    public Connection getConnection() throws Exception{
+    static public Connection getConnection() throws Exception{
 
         Connection conn = null;
         Statement stmt = null;
@@ -30,6 +30,4 @@ public class ConnectionTest {
 
         return conn;
     }
-
-
 }

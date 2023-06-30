@@ -4,6 +4,9 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="dto.CommentDto" %>
 <%@ page import="java.util.*" %>
+<%@ page import="dto.FileDto" %>
+<%@ page import="dao.CommentDao" %>
+<%@ page import="dao.FileDao" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -30,9 +33,20 @@
 
     Integer getBoardId = null;
 
+    String message = "";
+    BoardDao boardDao = new BoardDao();
+
     // 게시글 번호가 없으면
     try {
         getBoardId = Integer.parseInt(request.getParameter("id"));
+        Integer targetBoardId = boardDao.getBoard(getBoardId).getId();
+
+        System.out.println("targetBoardId = " + targetBoardId);
+
+        if(targetBoardId == null) {
+            message = "존재하지 않는 게시글입니다.";
+            throw new Exception("NO EXIST BOARD");
+        }
 
         String pageString = request.getParameter("page");
         getPage = Integer.parseInt(pageString == null ? "1" : pageString);
@@ -58,16 +72,16 @@
             getStartDate = getEndDate;
         }
     } catch (Exception e) {
+        message = "".equals(message) ? "오류가 발생했습니다. 리스트페이지로 이동합니다." : message;
         out.println("<script>");
-        out.println("alert('잘못된 요청입니다. 게시글 목록으로 이동합니다.');");
+        out.println("alert('" + message + "');");
+        out.println("location.href='index.jsp'");
         out.println("</script>");
-        response.sendRedirect("index.jsp");
         return;
     }
 
-    String message = "";
-
-    BoardDao boardDao = new BoardDao();
+    CommentDao commentDao = new CommentDao();
+    FileDao fileDao = new FileDao();
 
     try {
         LinkedHashMap<Integer, String> categoryMap = boardDao.getCategoryList();
@@ -94,9 +108,15 @@
         String updateDate = boardDto.getUpdate_date() == null ? "-" : sdf.format(boardDto.getUpdate_date());
 
         List<CommentDto> commentList = new ArrayList();
+        List<FileDto> fileList = new ArrayList();
 
         System.out.println("commentList = " + commentList);
-        commentList = boardDao.getCommentList(getBoardId);
+
+        // 댓글 불러오기
+        commentList = commentDao.getCommentList(getBoardId);
+
+        // 첨부 파일 가져오기
+        fileList = fileDao.getFileList(getBoardId);
 %>
 <body>
 <div>
@@ -126,13 +146,23 @@
         <span class="view-count">조회수: <span><%= boardDto.getView_count()%></span></span>
     </div>
     <div class="body">
-        <textarea readonly><%= boardDto.getContent()%></textarea>
+        <textarea readonly><%= boardDto.getContent().replace("<br>", "\n")%></textarea>
     </div>
     <div class="file-wrap">
-        <div class="file-box">
-            <div>아이콘</div>
-            <span>첨부파일1.hwp</span>
-        </div>
+        <%
+            for(FileDto file : fileList) {
+                if("N".equals(file.getDelete_flag())) {
+        %>
+            <div class="file-box">
+                <a href="downloadAction.jsp?fileName=<%= file.getSave_name()%>">
+                    <div>아이콘</div>
+                    <span><%= file.getOriginal_name()%></span>
+                </a>
+            </div>
+        <%
+                }
+            }
+        %>
     </div>
 </div>
 <form id="commentForm">
@@ -170,11 +200,11 @@
 </div>
 <%
     } catch (Exception e) {
-        message = message == null ? "오류가 발생했습니다. 리스트페이지로 이동합니다." : message;
+        message = "".equals(message) ? "오류가 발생했습니다. 리스트페이지로 이동합니다." : message;
 
         out.println("<script>");
         out.println("alert('" + message + "');");
-        out.println("location.href=index.jsp?id=" + getBoardId + "&page=" + getPage + "&startDate=" + startDate + "&endDate=" + endDate+ "&category=" + getCategoryType + "&keyword=" + getKeyword);
+        out.println("location.href=index.jsp?&page=" + getPage + "&startDate=" + startDate + "&endDate=" + endDate+ "&category=" + getCategoryType + "&keyword=" + getKeyword);
         out.println("</script>");
     }
 %>

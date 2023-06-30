@@ -4,58 +4,53 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="dto.BoardDto" %>
 <%@page import="org.json.JSONObject"%>
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.IOException" %>
 <%@ page import="java.util.regex.Pattern" %>
 <%@ page import="java.util.regex.Matcher" %>
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
+<%@ page import="dao.FileDao" %>
+<%@ page import="dto.FileDto" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dao.FileHandler" %>
 <%
-    request.setCharacterEncoding("utf-8");
-//    System.out.println("UPDATE ACTION JSP");
-
-    // 변수 세팅
+    System.out.println("UPDATE ACTION JSP");
 
     // DTO
     BoardDto boardDto = new BoardDto();
+    FileDto fileDto = new FileDto();
 
     // DAO
     BoardDao boardDao = new BoardDao();
-
-    // json 타입 반환을 위한 객체
-    JSONObject jobj = new JSONObject();
+    FileDao fileDao = new FileDao();
 
     // json 반환 값
+    JSONObject jobj = new JSONObject();
+
     String message = "게시글을 수정하였습니다.";
     String code = "UP_OK";
 
-    // 변수 세팅 끝
+    // 값을 받아오기 위한, File 저장을 위한 객체
+    String uploadDirectory = "C:\\Users\\kkasu\\Desktop\\게시판 샘플 이미지\\upload";
 
-    // JSON 데이터를 받기 위한 처리 로직
-    String jsonString = getJsonString(request);
+    int maxFileSize = 10 * 1024 * 1024; // 10MB
+    String encoding = "UTF-8";
+    MultipartRequest multipartRequest = new MultipartRequest(request, uploadDirectory, maxFileSize, encoding, new DefaultFileRenamePolicy());
 
-//    System.out.println("jsonString = " + jsonString);
+    System.out.println("MultipartRequest");
 
-    // 넘어온 값이 없다면 예외처리
-    if("".equals(jsonString)) {
-        message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
-        code = "UP_ERR";
-        responsePrint(jobj, message, code, response, out);
-        return;
-    }
-
-    // JSON 데이터를 파싱하여 필요한 값 가져오기
-    JSONObject json = new JSONObject(jsonString);
-
-    // 받아온 값 할당
     try {
-        boardDto.setId(json.getInt("boardId"));
-        boardDto.setCategory_id(json.getInt("categoryId"));
-        boardDto.setAuthor(json.getString("author").trim());
-        boardDto.setPassword(json.getString("password"));
-        boardDto.setTitle(json.getString("title").trim());
-        boardDto.setContent(json.getString("content").trim());
+        // 받아온 값 할당
+        boardDto.setId(Integer.parseInt(multipartRequest.getParameter("boardId")));
+        boardDto.setCategory_id(Integer.parseInt(multipartRequest.getParameter("categoryId")));
+        boardDto.setAuthor(multipartRequest.getParameter("author").trim());
+        boardDto.setPassword(multipartRequest.getParameter("password"));
+        boardDto.setTitle(multipartRequest.getParameter("title").trim());
+        boardDto.setContent(multipartRequest.getParameter("content").replace("\n","<br>").trim());
+        fileDto.setBoard_id(Integer.parseInt(multipartRequest.getParameter("boardId")));
 
         System.out.println("boardDto = " + boardDto);
     } catch(Exception e) {
+        e.printStackTrace();
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
         responsePrint(jobj, message, code, response, out);
@@ -83,6 +78,8 @@
         return;
     };
 
+    System.out.println("UPDATE ACTION VALIDATE PASS");
+
     // 비밀번호 체크
     Map<String, Object> boardMap = new HashMap<>();
     boardMap.put("boardId", boardDto.getId());
@@ -98,12 +95,13 @@
         message = "비밀번호가 일치하지 않습니다.";
         code = "UP_PWD";
 
+        System.out.println("PASSWORD CONPARE FAIL");
         responsePrint(jobj, message, code, response, out);
         return;
     }
 
     if(resultNumber == -1) {
-        System.out.println("비밀번호 비교 문제");
+        System.out.println("PASSWORD CONPARE ERROR");
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
 
@@ -111,13 +109,49 @@
         return;
     }
 
-    // row 삭제 결과 반환
+    System.out.println("UPDATE ACTION VALIDATE PASS");
+
+    // row 수정 결과 반환
     int rowCount = boardDao.updateBoard(boardDto);
 
     if(rowCount != 1) {
         System.out.println("rowCount != -1");
         message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
         code = "UP_ERR";
+    }
+
+    System.out.println("UPDATE SUCCESS");
+
+    String originName = multipartRequest.getOriginalFileName("file");
+    String uploadName = multipartRequest.getFilesystemName("file");
+
+    fileDto.setOriginal_name(originName);
+    fileDto.setSave_name(uploadName);
+
+    // 삭제 플래그가 Y처리된 파일은 삭제
+    List<FileDto> getFileList = fileDao.getFileList(fileDto.getBoard_id());
+
+    System.out.println("getFileList = " + getFileList);
+
+    for(FileDto file : getFileList) {
+        if("Y".equals(file.getDelete_flag())) {
+            System.out.println("플래그가 Y인 파일");
+            System.out.println("file = " + file);
+            // 삭제 로직
+            FileHandler.deleteFileFromDir(file);
+            fileDao.deleteFile(file);
+        }
+    }
+
+    if(!(originName == null && uploadName == null)) {
+        int insertRowCount = fileDao.saveFile(fileDto);
+
+        if(insertRowCount != 1) {
+            message = "오류가 발생하였습니다. 잠시후 다시 시도해주세요.";
+            code = "UP_ERR";
+
+            throw new Exception("insert file error");
+        }
     }
 
     responsePrint(jobj, message, code, response, out);
@@ -153,18 +187,6 @@
     }
 %>
 <%!
-    private String getJsonString(HttpServletRequest request) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = request.getReader();
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-
-        return sb.toString();
-    }
-
     private void responsePrint(JSONObject jObj, String message, String code, HttpServletResponse response, javax.servlet.jsp.JspWriter out) throws Exception {
         jObj.put("msg", message);
         jObj.put("code", code);

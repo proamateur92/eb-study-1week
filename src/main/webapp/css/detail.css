@@ -35,6 +35,7 @@
 
 .file-box {
     display: flex;
+    cursor: pointer;
 }
 
 .comment-wrap {
