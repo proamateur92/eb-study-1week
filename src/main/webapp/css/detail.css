@@ -1,6 +1,9 @@
 .board-date {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
+
+    margin-top: 2rem;
 }
 
 .board-date > div > span:first-of-type {
@@ -8,7 +11,15 @@
 }
 
 .top {
-    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    padding: 1.2rem 0;
+}
+
+.top-box {
+    font-size: 1.2rem;
 }
 
 .top > .nickname {
@@ -16,14 +27,20 @@
 }
 
 .category {
-    margin-right: 1rem;
+    margin-right: 0.5rem;
+    font-weight: bold;
 }
 
-.body > textarea {
-    width: 100%;
-    min-height: 8rem;
+.board-body {
+    padding: 0.5rem 1rem;
+    border: 1px solid gray;
+    border-radius: 5px;
 
-    resize: none;
+    margin-bottom: 1.5rem;
+
+    white-space: pre-line;
+    box-sizing: border-box;
+    word-break: break-all;
 }
 
 .file-wrap {
@@ -35,10 +52,17 @@
 
 .file-box {
     display: flex;
-    cursor: pointer;
+}
+
+#commentForm {
+    margin-top: 1.5rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background-color: rgb(255, 242, 224);
 }
 
 .comment-wrap {
+    border-radius: 5px;
     background-color: blanchedalmond;
     margin-top: 2rem;
 }
@@ -48,36 +72,62 @@
     padding-bottom: 1rem;
 }
 
+.comment-top > span {
+    font-size: 0.9rem;
+}
+
+.comment-body {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    white-space: pre-line;
+}
+
 .comment-date {
     margin-bottom: 0.3rem;
 }
 
-.comment > .info-box {
-    margin-bottom: 0.5rem;
-}
-
-.comment > .input-box {
+.input-wrap {
     display: flex;
-    justify-content: space-between;
-
-    width: 100%;
-    min-height: 3rem;
+    align-items: flex-start;
 
     padding: 1rem 0;
 }
 
-.comment > .input-box > textarea {
-    width: 85%;
+.info-box {
+    margin-bottom: 0.5rem;
+
+    width: 20%;
+    max-width: 6rem;
+}
+
+.info-box > input {
+    width: 100%;
+}
+
+.input-box {
+    display: flex;
+
+    width: 90%;
+    min-height: 3rem;
+}
+
+.input-box > textarea {
+    width: 90%;
+    margin: 0 0.5rem;
     resize: none;
 }
 
-.comment > .input-box > button {
-    width: 13%;
+button {
+    width: 5rem;
 }
 
 .btn-box {
     display: flex;
     justify-content: center;
+
+    padding-top: 1rem;
+
+    border-top: 1px solid gray;
 }
 
 .btn-box > button:nth-of-type(2) {

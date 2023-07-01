@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="//code.jquery.com/jquery-3.5.1.min.js" ></script>
     <script src="./js/passwordCheck.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/passwordCheck.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
     <title>비밀번호 확인</title>
 </head>
 <body>
@@ -74,20 +77,26 @@
     System.out.println("비밀번호 체크 페이지");
     System.out.println("getBoardId = " + getBoardId);
 %>
-    <div>
-        <h1>비밀번호 확인</h1>
-    </div>
-    <div>
-        비밀번호
-        <input type="hidden" id="boardId" value="<%= getBoardId%>" />
-        <input type="hidden" id="page" value="<%= getPage%>" />
-        <input type="hidden" id="category" value="<%= getCategoryType%>" />
-        <input type="hidden" id="startDate" value="<%= getStartDate%>" />
-        <input type="hidden" id="endDate" value="<%= getEndDate%>" />
-        <input type="hidden" id="keyword" value="<%= getKeyword%>" />
-        <input type="password" id="password" placeholder="비밀번호를 입력해 주세요." />
-        <button onclick="movePage()">취소</button>
-        <button onclick="onDelete()">확인</button>
-    </div>
+   <div class="wrap">
+        <h1 class="intro">비밀번호 확인</h1>
+       <div class="check-box">
+           <input type="hidden" id="boardId" value="<%= getBoardId%>" />
+           <input type="hidden" id="page" value="<%= getPage%>" />
+           <input type="hidden" id="category" value="<%= getCategoryType%>" />
+           <input type="hidden" id="startDate" value="<%= getStartDate%>" />
+           <input type="hidden" id="endDate" value="<%= getEndDate%>" />
+           <input type="hidden" id="keyword" value="<%= getKeyword%>" />
+           <div class="line">
+               <div class="as">비밀번호</div>
+               <div class="user">
+                   <input type="password" id="password" placeholder="비밀번호를 입력해 주세요." />
+               </div>
+           </div>
+           <div class="btn-box">
+               <button class="btn btn-secondary" onclick="movePage()">취소</button>
+               <button class="btn btn-primary" onclick="onDelete()">확인</button>
+           </div>
+        </div>
+   </div>
 </body>
 </html>

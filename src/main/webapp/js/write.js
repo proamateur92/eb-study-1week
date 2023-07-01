@@ -1,3 +1,20 @@
+function getData() {
+    const page = $('#page').val();
+    const category = $('#getCategory').val();
+    const startDate = $('#startDate').val();
+    const endDate = $('#endDate').val();
+    let keywordValue = $('#keyword').val();
+    keywordValue = keywordValue ? keywordValue : "";
+
+    return {page, category, startDate, endDate, keywordValue};
+}
+
+function movePage() {
+    const {page, category, startDate, endDate, keywordValue} = getData();
+
+    location.href = 'index.jsp?page='+ page + '&startDate=' + startDate + '&endDate=' + endDate + '&category=' + category + '&keyword=' + keywordValue;
+}
+
 function insertBoard() {
     if(!validationCheck()) return;
 

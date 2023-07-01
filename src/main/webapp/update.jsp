@@ -15,31 +15,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="//code.jquery.com/jquery-3.5.1.min.js" ></script>
     <script src="./js/update.js"></script>
+    <script src="https://kit.fontawesome.com/c1651245ed.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="./css/update.css" />
     <title>게시글 수정</title>
-    <style>
-        .row {
-            display: flex;
-        }
-
-        .title {
-            width: 8rem;
-            border: 1px solid black;
-        }
-
-        .file-wrap {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .file-box {
-            display: flex;
-        }
-
-        .point {
-            color: red;
-        }
-    </style>
-</head>
 <%
     String startDate = "";
     String endDate = "";
@@ -122,94 +102,104 @@
     List<FileDto> fileList = fileDao.getFileList(getBoardId);
 %>
 <body>
-<div>
-    <h1>게시판 - 수정</h1>
-</div>
-<form enctype="multipart/form-data">
-    <input type="hidden" id="boardId" value="<%= getBoardId%>" />
-    <input type="hidden" id="page" value="<%= getPage%>" />
-    <input type="hidden" id="category" value="<%= getCategoryType%>" />
-    <input type="hidden" id="startDate" value="<%= getStartDate%>" />
-    <input type="hidden" id="endDate" value="<%= getEndDate%>" />
-    <input type="hidden" id="keyword" value="<%= getKeyword%>" />
-    <div class="row">
-        <div class="title">카테고리<span class="point">*</span></div>
-        <select id="categoryId">
-            <% for(Map.Entry entry : categoryMap.entrySet()) {
-                if(entry.getKey() == boardDto.getCategory_id()) {
-            %>
-                <option value="<%= entry.getKey()%>" selected><%= entry.getValue()%></option>
-            <%
-                } else {
-            %>
-                <option value="<%= entry.getKey()%>"><%= entry.getValue()%></option>
-            <% }} %>
-        </select>
-    </div>
-    <div class="row">
-        <div class="title">등록일시</div>
-        <span><%= createDate%></span>
-    </div>
-    <div class="row">
-        <div class="title">수정일시</div>
-        <span><%= updateDate%></span>
-    </div>
-    <div class="row">
-        <div class="title">조회수</div>
-        <span><%= boardDto.getView_count()%></span>
-    </div>
-    <div class="row">
-        <div class="title">작성자<span class="point">*</span></div>
-        <div>
-            <input type="text" id="author" value="<%= boardDto.getAuthor()%>">
-        </div>
-    </div>
-    <div class="row">
-        <div class="title">비밀번호<span class="point">*</span></div>
-        <div>
-            <input type="text" id="password" placeholder="비밀번호">
-        </div>
-    </div>
-    <div class="row">
-        <div class="title">제목<span class="point">*</span></div>
-        <div>
-            <input type="text" id="title" value="<%= boardDto.getTitle()%>">
-        </div>
-    </div>
-    <div class="row">
-        <div class="title">내용<span class="point">*</span></div>
-        <div>
-            <textarea id="content"><%= boardDto.getContent().replace("<br>", "\n")%></textarea>
-        </div>
-    </div>
-    <div class="row">
-        <div class="title">파일 첨부</div>
-        <div class="content file-wrap">
-            <%
-                for(int i = 0; i < fileList.size(); i++) {
-            %>
-                <div class="file-box">
-                    <div>아이콘</div>
-                    <span><%= fileList.get(i).getOriginal_name()%></span>
-                    <button>Download</button>
-                    <button type="button" onclick="changeDeleteFlag(<%= getBoardId%>, '<%= fileList.get(i).getSave_name()%>', true)">X</button>
+    <div class="wrap">
+        <h1 class="intro">게시판 - 수정</h1>
+        <form enctype="multipart/form-data">
+            <input type="hidden" id="boardId" value="<%= getBoardId%>" />
+            <input type="hidden" id="page" value="<%= getPage%>" />
+            <input type="hidden" id="category" value="<%= getCategoryType%>" />
+            <input type="hidden" id="startDate" value="<%= getStartDate%>" />
+            <input type="hidden" id="endDate" value="<%= getEndDate%>" />
+            <input type="hidden" id="keyword" value="<%= getKeyword%>" />
+            <div class="line">
+                <div class="as">카테고리<span class="point">*</span></div>
+                <div class="user">
+                    <select id="categoryId">
+                        <% for(Map.Entry entry : categoryMap.entrySet()) {
+                            if(entry.getKey() == boardDto.getCategory_id()) {
+                        %>
+                            <option value="<%= entry.getKey()%>" selected><%= entry.getValue()%></option>
+                        <%
+                            } else {
+                        %>
+                            <option value="<%= entry.getKey()%>"><%= entry.getValue()%></option>
+                        <% }} %>
+                    </select>
                 </div>
-            <%
-                }
-                for(int i = 1 - (fileList.size()); i > 0; i--) {
-            %>
-                <div class="file-box">
-                    <input type="file" id="file">
+            </div>
+            <div class="line">
+                <div class="as"><span>등록일시</span></div>
+                <div class="user"><span><%= createDate%></span></div>
+            </div>
+            <div class="line">
+                <div class="as"><span>수정일시</span></div>
+                <div class="user"><span><%= updateDate%></span></div>
+            </div>
+            <div class="line">
+                <div class="as"><span>조회수</span></div>
+                <div class="user"><span><%= boardDto.getView_count()%></span></div>
+            </div>
+            <div class="line">
+                <div class="as"><span>작성자<span class="point">*</span></span></div>
+                <div class="user">
+                    <input type="text" id="author" value="<%= boardDto.getAuthor()%>">
                 </div>
-            <%
-                }
-            %>
-        </div>
+            </div>
+            <div class="line">
+                <div class="as">
+                    <span>비밀번호<span class="point">*</span></span>
+                </div>
+                <div class="user">
+                    <input type="password" id="password" placeholder="비밀번호">
+                </div>
+            </div>
+            <div class="line">
+                <div class="as">
+                    <span>제목<span class="point">*</span></span>
+                </div>
+                <div class="user">
+                    <input type="text" id="title" value="<%= boardDto.getTitle()%>">
+                </div>
+            </div>
+            <div class="line">
+                <div class="as">내용<span class="point">*</span></div>
+                <div class="user">
+                    <textarea class="content" id="content"><%= boardDto.getContent().replace("<br>", "\n")%></textarea>
+                </div>
+            </div>
+            <div class="line">
+                <div class="as"><span>파일 첨부</span></div>
+                <div class="user">
+                    <%
+                        for(int i = 0; i < fileList.size(); i++) {
+                    %>
+                        <div class="file-box">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <span class="file-name"><%= fileList.get(i).getOriginal_name()%></span>
+                            <button class="btn btn-primary">
+                                <a href="downloadAction.jsp?fileName=<%= fileList.get(i).getSave_name()%>">
+                                    Download
+                                </a>
+                            </button>
+                            <button type="button" class="x btn btn-danger" onclick="changeDeleteFlag(<%= getBoardId%>, '<%= fileList.get(i).getSave_name()%>', true)">X</button>
+                        </div>
+                    <%
+                        }
+                        for(int i = 1 - (fileList.size()); i > 0; i--) {
+                    %>
+                        <div class="file-box">
+                            <input type="file" id="file">
+                        </div>
+                    <%
+                        }
+                    %>
+                </div>
+            </div>
+            <div class="btn-box">
+                <button class="btn btn-secondary" type="button" onclick="movePage()">취소</button>
+                <button class="btn btn-primary" type="button" onclick="onUpdate()">저장</button>
+            </div>
+        </form>
     </div>
-    <div>
-        <button type="button" onclick="movePage()">취소</button>
-        <button type="button" onclick="onUpdate()">저장</button>
-    </div>
-</form>
 </body>
 </html>

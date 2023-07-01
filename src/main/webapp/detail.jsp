@@ -18,8 +18,10 @@
     <title>게시글 상세보기</title>
     <script src="//code.jquery.com/jquery-3.5.1.min.js" ></script>
     <script src="./js/detail.js"></script>
+    <script src="https://kit.fontawesome.com/c1651245ed.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="./css/common.css" />
     <link rel="stylesheet" type="text/css" href="./css/detail.css" />
-</head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
 <%
     String startDate = "";
     String endDate = "";
@@ -119,85 +121,85 @@
         fileList = fileDao.getFileList(getBoardId);
 %>
 <body>
-<div>
-    <h1>게시판 - 보기</h1>
-</div>
+    <div class="wrap">
+        <h1 class="intro">게시판 - 보기</h1>
 
-<input type="hidden" id="keyword" value="<%= getKeyword%>"/>
-<input type="hidden" id="boardId" value="<%= getBoardId%>">
-<input type="hidden" id="page" value="<%= getPage%>" />
-<input type="hidden" id="category" value="<%= getCategoryType%>" />
-<input type="hidden" id="startDate" value="<%= getStartDate%>" />
-<input type="hidden" id="endDate" value="<%= getEndDate%>" />
+        <input type="hidden" id="keyword" value="<%= getKeyword%>"/>
+        <input type="hidden" id="boardId" value="<%= getBoardId%>">
+        <input type="hidden" id="page" value="<%= getPage%>" />
+        <input type="hidden" id="category" value="<%= getCategoryType%>" />
+        <input type="hidden" id="startDate" value="<%= getStartDate%>" />
+        <input type="hidden" id="endDate" value="<%= getEndDate%>" />
 
-<div class="board-date">
-    <span><%= boardDto.getAuthor()%></span>
-    <div>
-        <span>등록일시 <%= createDate%></span>
-        <span>수정일시 <%= updateDate%></span>
-    </div>
-</div>
-<div class="board-wrap">
-    <div class="top">
-        <div class="top-box">
-            <span class="category"><%= categoryName%></span>
-            <span class="title"><%= boardDto.getTitle()%></span>
+        <div class="board-date">
+            <span><%= boardDto.getAuthor()%></span>
+            <div class="board-date">
+                <span>등록일시 <%= createDate%></span>
+                <span>수정일시 <%= updateDate%></span>
+            </div>
         </div>
-        <span class="view-count">조회수: <span><%= boardDto.getView_count()%></span></span>
-    </div>
-    <div class="body">
-        <textarea readonly><%= boardDto.getContent().replace("<br>", "\n")%></textarea>
-    </div>
-    <div class="file-wrap">
+        <div class="board-wrap">
+            <div class="top">
+                <div class="top-box">
+                    <span class="category">[<%= categoryName%>]</span>
+                    <span class="title"><%= boardDto.getTitle()%></span>
+                </div>
+                <span class="view-count">조회수: <span><%= boardDto.getView_count()%></span></span>
+            </div>
+            <div class="board-body">
+                <%= boardDto.getContent().replace("<br>", "\n")%>
+            </div>
+            <div class="file-wrap">
+                <%
+                    for(FileDto file : fileList) {
+                        if("N".equals(file.getDelete_flag())) {
+                %>
+                    <div class="file-box">
+                        <a href="downloadAction.jsp?fileName=<%= file.getSave_name()%>">
+                            <i class="fa-solid fa-download"></i>
+                            <span><%= file.getOriginal_name()%></span>
+                        </a>
+                    </div>
+                <%
+                        }
+                    }
+                %>
+            </div>
+        </div>
+        <form id="commentForm">
         <%
-            for(FileDto file : fileList) {
-                if("N".equals(file.getDelete_flag())) {
+                for(CommentDto comment: commentList) {
+                    String formattedCommentDate = sdf.format(comment.getCreate_date());
         %>
-            <div class="file-box">
-                <a href="downloadAction.jsp?fileName=<%= file.getSave_name()%>">
-                    <div>아이콘</div>
-                    <span><%= file.getOriginal_name()%></span>
-                </a>
+            <div class="comment">
+                <div class="comment-top">
+                    <span class="nickname"><%= comment.getNickname()%></span>
+                    <span class="date"><%= formattedCommentDate%></span>
+                </div>
+                <div class="comment-body">
+                    <%= comment.getContent()%>
+                </div>
             </div>
         <%
                 }
-            }
         %>
-    </div>
-</div>
-<form id="commentForm">
-<%
-        for(CommentDto comment: commentList) {
-            String formattedCommentDate = sdf.format(comment.getCreate_date());
-%>
-    <div class="comment">
-        <div class="top">
-            <span class="nickname"><%= comment.getNickname()%></span>
-            <span class="date"><%= formattedCommentDate%></span>
-        </div>
-        <div class="body">
-            <span><%= comment.getContent()%></span>
-        </div>
-    </div>
-<%
-        }
-%>
-    <div class="input-wrap">
-        <div class="info-box">
-            <input type="text" id="nickname" name="nickname" class="nickname" />
-            <input type="text" id="password" name="password" style="display: none" class="info-password" />
-        </div>
-        <div class="input-box">
-            <textarea id="content" name="content" placeholder="댓글을 입력해주세요."></textarea>
-            <button type="button" onclick="onCommentSubmit()">등록</button>
+            <div class="input-wrap">
+                <div class="info-box">
+                    <input type="text" id="nickname" name="nickname" class="nickname" placeholder="닉네임" />
+                    <input type="text" id="password" name="password" style="display: none" class="info-password" />
+                </div>
+                <div class="input-box">
+                    <textarea id="content" name="content" placeholder="댓글을 입력해주세요."></textarea>
+                    <button class="btn btn-primary" type="button" onclick="onCommentSubmit()">등록</button>
+                </div>
+            </div>
+        </form>
+        <div class="btn-box">
+            <button class="btn btn-primary" onclick="movePage('LIST')">목록</button>
+            <button class="btn btn-success" onclick="movePage('UPDATE')">수정</button>
+            <button class="btn btn-danger" onclick="movePage('DELETE')">삭제</button>
         </div>
     </div>
-</form>
-<div class="btn-box">
-    <button onclick="movePage('LIST')">목록</button>
-    <button onclick="movePage('UPDATE')">수정</button>
-    <button onclick="movePage('DELETE')">삭제</button>
-</div>
 <%
     } catch (Exception e) {
         message = "".equals(message) ? "오류가 발생했습니다. 리스트페이지로 이동합니다." : message;

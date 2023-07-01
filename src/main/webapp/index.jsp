@@ -15,10 +15,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
     <script src="./js/main.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="https://kit.fontawesome.com/c1651245ed.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
     <title>게시글 목록</title>
 </head>
-
 <%
     // 현재 페이지 값 가져오기
     String getPageString = request.getParameter("page");
@@ -90,116 +92,117 @@
 
     System.out.println(boardList);
 %>
-
 <body>
-<h1>자유 게시판 - 목록</h1>
-<input type="hidden" id="page" value="<%= pageDto.getPage()%>" />
-<div class="search-wrap">
-    <div class="date-box">
-        등록일
-        <input type="date" id="startDate" value="<%= startDate%>" max="<%= endDate%>" oninput="updateMinRange()"/>
-        ~
-        <input type="date" id="endDate" value="<%= endDate%>" min="<%= startDate%>" oninput="updateMaxRange()"/>
-    </div>
-    <div class="search-box">
-        <select id="category" class="category">
-            <option value="0">전체 카테고리</option>
-            <% for(Map.Entry entry : categoryMap.entrySet()) {
-                if(entry.getKey() == categoryType) {
-            %>
-            <option value="<%= entry.getKey()%>" selected><%= entry.getValue()%></option>
-            <%
-            } else {
-            %>
-            <option value="<%= entry.getKey()%>"><%= entry.getValue()%></option>
-            <% }} %>
-        </select>
-        <div class="keyword-box">
-            <input type="text" id="keyword" value="<%= getKeyword%>"/>
-            <button onclick="onSearch()">검색</button>
+    <div class="wrap">
+        <h1 class="intro">자유 게시판 - 목록</h1>
+        <input type="hidden" id="page" value="<%= pageDto.getPage()%>" />
+        <div class="search-wrap">
+            <div class="date-box">
+                등록일
+                <input type="date" id="startDate" value="<%= startDate%>" max="<%= endDate%>" oninput="updateMinRange()"/>
+                ~
+                <input type="date" id="endDate" value="<%= endDate%>" min="<%= startDate%>" oninput="updateMaxRange()"/>
+            </div>
+            <div class="search-box">
+                <select id="category" class="category">
+                    <option value="0">전체 카테고리</option>
+                    <% for(Map.Entry entry : categoryMap.entrySet()) {
+                        if(entry.getKey() == categoryType) {
+                    %>
+                    <option value="<%= entry.getKey()%>" selected><%= entry.getValue()%></option>
+                    <%
+                    } else {
+                    %>
+                    <option value="<%= entry.getKey()%>"><%= entry.getValue()%></option>
+                    <% }} %>
+                </select>
+                <div class="keyword-box">
+                    <input type="text" id="keyword" value="<%= getKeyword%>" placeholder="검색어를 입력해주세요. (제목 + 작성자 + 내용)"/>
+                    <button class="btn btn-primary" onclick="onSearch()">검색</button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<div>
-    <div>총 <%= boardCount%>건</div>
-    <table>
-        <% if(boardList != null) { %>
-            <thead>
-            <tr>
-                <th>카테고리</th>
-                <th>파일</th>
-                <th>제목</th>
-                <th>작성자</th>
-                <th>조회수</th>
-                <th>등록 일시</th>
-                <th>수정 일시</th>
-            </tr>
-            </thead>
-        <% } %>
-        <tbody>
-<%
-        // 날짜 형식 포맷 변환
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+        <div class="table-responsive">
+            <div class="count">총 <%= boardCount%>건</div>
+            <table class="table table-bordered">
+                <% if(boardList != null) { %>
+                    <thead class="table-light">
+                    <tr>
+                        <th>카테고리</th>
+                        <th>파일</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>조회수</th>
+                        <th>등록 일시</th>
+                        <th>수정 일시</th>
+                    </tr>
+                    </thead>
+                <% } %>
+                <tbody>
+        <%
+                // 날짜 형식 포맷 변환
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 
-        if(boardList != null) {
-            for(BoardDto board : boardList) {
-                String createDate = sdf.format(board.getCreate_date());
-                String updateDate = board.getUpdate_date() == null ? "-" : sdf.format(board.getUpdate_date());
-                String getTitle = board.getTitle().length() >= 80 ? board.getTitle().substring(0, 51) + "..." : board.getTitle();
-                out.print("<tr>");
-                out.print("<td>" + categoryMap.get(board.getCategory_id()) + "</td>");
-                out.print("<td>" + board.getFile_flag() + "</td>");
-                %>
-                <td class="link" onclick="movePage(<%= pageDto.getPage()%>, 'DETAIL', <%= board.getId()%>)"><%= board.getTitle()%></td>
-                <%
-                out.print("<td>" + board.getAuthor() + "</td>");
-                out.print("<td>" + board.getView_count() + "</td>");
-                out.print("<td>" + createDate + "</td>");
-                out.print("<td>" + updateDate + "</td>");
-                out.print("</tr>");
-            }
-        } else {
-            out.println("<h1>게시글이 존재하지 않습니다.</h1>");
-        }
-%>
-        </tbody>
-    </table>
-</div>
-<div class="pagination">
-    <%
-        if(boardList != null && pageDto.getIsPrev()) {
-    %>
-        <button class="first" onclick="movePage(1)"><</button>
-        <button class="prev" onclick="movePage(<%= pageDto.getBeginPage() - 1%>)"><<</button>
-    <%
-        }
-    %>
-    <div class="number">
-        <%
-            for(int i = pageDto.getBeginPage(); i <= pageDto.getEndPage(); i++) {
-                if(i == pageDto.getPage()) {
-        %>
-            <button class="page selected" onclick="movePage(<%= i%>)"><%= i%></button>
-        <%
-                    continue;
+                if(boardList != null) {
+                    for(BoardDto board : boardList) {
+                        String createDate = sdf.format(board.getCreate_date());
+                        String updateDate = board.getUpdate_date() == null ? "-" : sdf.format(board.getUpdate_date());
+                        String getTitle = board.getTitle().length() >= 80 ? board.getTitle().substring(0, 51) + "..." : board.getTitle();
+                        out.print("<tr>");
+                        out.print("<td>" + categoryMap.get(board.getCategory_id()) + "</td>");
+                        %>
+                        <td>
+                            <%
+                                if("Y".equals(board.getFile_flag())) {
+                            %>
+                            <i class="fa-solid fa-paperclip"></i>
+                            <%
+                                }
+                            %>
+                        </td>
+                        <td class="link" onclick="movePage(<%= pageDto.getPage()%>, 'DETAIL', <%= board.getId()%>)"><%= board.getTitle()%></td>
+                        <%
+                        out.print("<td>" + board.getAuthor() + "</td>");
+                        out.print("<td>" + board.getView_count() + "</td>");
+                        out.print("<td>" + createDate + "</td>");
+                        out.print("<td>" + updateDate + "</td>");
+                        out.print("</tr>");
+                    }
+                } else {
+                    out.println("<h1>게시글이 존재하지 않습니다.</h1>");
                 }
         %>
-            <button class="page" onclick="movePage(<%= i%>)"><%= i%></button>
-        <%
-            }
-        %>
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination justify-content-center">
+            <%
+                if(boardList != null && pageDto.getIsPrev()) {
+            %>
+                <li class="page-link" onclick="movePage(1)">first</li>
+                <li class="page-link" onclick="movePage(<%= pageDto.getBeginPage() - 1%>)">prev</li>
+            <%
+                }
+                for(int i = pageDto.getBeginPage(); i <= pageDto.getEndPage(); i++) {
+                    if(i == pageDto.getPage()) {
+            %>
+                <li class="page-link selected" onclick="movePage(<%= i%>)"><%= i%></li>
+            <%
+                        continue;
+                    }
+            %>
+                <li class="page-link" onclick="movePage(<%= i%>)"><%= i%></li>
+            <%
+                }
+                if(boardList != null && pageDto.getIsNext()) {
+            %>
+            <li class="page-link" onclick="movePage(<%= pageDto.getEndPage() + 1%>)">next</li>
+            <li class="page-link" onclick="movePage(<%= pageDto.getTotalPage()%>)">last</li>
+            <%
+                }
+            %>
+        </ul>
+        <button class="btn btn-primary" onclick="movePage(<%= pageDto.getPage()%> ,'WRITE')">등록</button>
     </div>
-    <%
-        if(boardList != null && pageDto.getIsNext()) {
-    %>
-    <button class="next" onclick="movePage(<%= pageDto.getEndPage() + 1%>)">></button>
-    <button class="last" onclick="movePage(<%= pageDto.getTotalPage()%>)">>></button>
-    <%
-        }
-    %>
-
-</div>
-<button onclick="movePage(<%= pageDto.getPage()%> ,'WRITE')">등록</button>
-
 </body>
 </html>
